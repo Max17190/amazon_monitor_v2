@@ -294,6 +294,8 @@ async def main():
                     for product in results_5080:
                         if product.get('in_stock'):
                             await monitor.send_notification(product)
+                
+                await asyncio.sleep(random.uniform(1,2))
                             
                 results_5090 = await asyncio.to_thread(check_stock, RTX5090)
                 if results_5090:
