@@ -63,7 +63,7 @@ class BlinkMonitor:
                 for url in WEBHOOK_URLS:
                     webhook = Webhook.from_url(url, session=self.session)
                     tasks.append(webhook.send(embed=embed)) 
-                    tasks.append(webhook.send(content=f"@RTX5080",embed=embed))
+                    tasks.append(webhook.send(content=f"<@1335458633911369789>",embed=embed))
                 
                 await asyncio.gather(*tasks)
                 logging.info(f"Sent to {len(tasks)} webhooks")
