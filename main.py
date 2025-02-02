@@ -66,11 +66,15 @@ class BlinkMonitor:
         try:
             tasks = []
             for url in WEBHOOK_URLS:
-                role_id = WEBHOOK_CONFIG[url]
-                content = f"<@&{role_id}>"
-                
-                webhook = Webhook.from_url(url, session=self.session)
-                tasks.append(webhook.send(content=content, embed=embed))
+                try:
+                    role_id = WEBHOOK_CONFIG[url]
+                    webhook = Webhook.from_url(url, session=self.session)
+                    tasks.append(webhook.send(content=f"<@&{role_id}>", embed=embed))
+                    logging.debug(f"Queued webhook for {url[:15]}... with role {role_id}")
+                except KeyError:
+                    logging.error(f"No role ID found for webhook {url}")
+                except Exception as e:
+                    logging.error(f"Webhook setup error: {str(e)}")
 
             await asyncio.gather(*tasks)
             
@@ -257,6 +261,11 @@ def get_slate_token():
         return None
 
 async def main():
+
+    asins = [
+        "B07L4QGYLV"
+    ]
+
     async with BlinkMonitor() as monitor:
         while True:
             try:
