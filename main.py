@@ -39,11 +39,6 @@ proxy_port = os.getenv('PROXY_PORT')
 proxy_user = os.getenv('PROXY_USER') 
 proxy_pass = os.getenv('PROXY_PASS')  
 
-proxy = f"http://{proxy_user}:{proxy_pass}@{proxy_host}:{proxy_port}"
-proxies = {
-    "http": proxy,
-    "https": proxy
-}
 
 def get_random_user_agent():
     user_agents = [
@@ -276,7 +271,7 @@ def get_slate_token():
 
 async def main():
 
-    asins = [
+    RTX5080 = [
             "B0DTPG3B1N", "B0DSWP51N3", "B0DSXKZ2T9", "B0DTJFZ4YS", "B0DSX9Y24P",
             "B0DSXGNFJL", "B0DSXNXTSS", "B0DQSD7YQC", "B0DT7JVPVH", "B0DSWQNGYF",
             "B0DT7FT1P5", "B0DTJDR3V9", "B0DT7H5JYL", "B0DQSLHSP2", "B0DS2R6948",
@@ -284,16 +279,30 @@ async def main():
             "B0DSXH2P3L", "B0DSXJ5QF4", "B0DT7HVT16", "B0DS2R7N4F", "B0DSWR8WMB"
     ]
 
+    RTX5090 = [
+        "B0DT7L98J1", "B0DTJFSSZG", "B0DTJF8YT4", "B0DS2WQZ2M",
+        "B0DT7JS6BG", "B0DT7GHQMD", "B0DT7L992Z", "B0DT7GBNWQ",
+        "B0DT7GMXHB", "B0DT7KGND2", "B0DT7K9VV3", "B0DS2Z8854",
+        "B0DS2X3T6P", "B0DS2X13PH"
+    ]
+
     async with BlinkMonitor() as monitor:
         while True:
             try:
-                results = await asyncio.to_thread(check_stock, asins)
-                if results:
-                    for product in results:
+                results_5080 = await asyncio.to_thread(check_stock, RTX5080)
+                if results_5080:
+                    for product in results_5080:
                         if product.get('in_stock'):
                             await monitor.send_notification(product)
                             
+                results_5090 = await asyncio.to_thread(check_stock, RTX5090)
+                if results_5090:
+                    for product in results_5090:
+                        if product.get('in_stock'):
+                            await monitor.send_notification(product)
+
                 await asyncio.sleep(random.uniform(4, 8))
+            
                 
             except KeyboardInterrupt:
                 break
