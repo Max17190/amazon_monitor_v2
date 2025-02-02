@@ -1,5 +1,7 @@
 WEBHOOK_CONFIG = {
+    # Blink FNF
     "https://discord.com/api/webhooks/1335435206219268211/m5LFrhU6GcM-Eql_TpqH4xNB8vL561aV08ERN2OGjdfHEAYgpNw6ZfQlX65z9HsSGcrH": "1335458633911369789",
+    # Blink Monitors
     "https://discord.com/api/webhooks/1335461339577057361/DZHvYKLWlc4eO618gLp2R_0ctfdypXsMbPSUS9vpDnq2VK6nTZNWJ-xzd5wEpZSBLsrP": "1335462521468882957"
 }
 WEBHOOK_URLS = list(WEBHOOK_CONFIG.keys())
