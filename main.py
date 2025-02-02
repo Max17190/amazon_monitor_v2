@@ -313,7 +313,7 @@ async def main():
                             await monitor.send_notification(product)
 
                 # Monitor Cycle Delay
-                await asyncio.sleep(random.uniform(1, 2))
+                await asyncio.sleep(random.uniform(2, 3))
             
                 
             except KeyboardInterrupt:
