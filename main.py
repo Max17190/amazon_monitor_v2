@@ -9,7 +9,7 @@ import logging
 import requests
 import asyncio
 from datetime import datetime
-from webhooks import WEBHOOK_URLS
+from webhooks import WEBHOOK_CONFIG, WEBHOOK_URLS
 import aiohttp
 
 # Configure logging
@@ -47,33 +47,37 @@ def get_random_user_agent():
 
 class BlinkMonitor:
     def __init__(self):
-        self.session = aiohttp.ClientSession()
+        self.session = None  # Initialize as None
         self.rate_limited = False
 
+    async def __aenter__(self):
+        self.session = aiohttp.ClientSession()
+        return self
+
+    async def __aexit__(self, *args):
+        await self.session.close()
+
     async def send_notification(self, product_data):
-        """Send to all webhooks with proper error handling"""
         if self.rate_limited:
-            logging.warning("Skipping send due to rate limit")
             return
 
-        embed = self.create_embed(product_data)
+        embed = self.create_embed(product_data)  # Create FIRST
+        
         try:
-            async with aiohttp.ClientSession() as session:
-                tasks = []
-                for url in WEBHOOK_URLS:
-                    webhook = Webhook.from_url(url, session=self.session)
-                    tasks.append(webhook.send(embed=embed)) 
-                    tasks.append(webhook.send(content=f"<@&1335458633911369789>",embed=embed))
+            tasks = []
+            for url in WEBHOOK_URLS:
+                role_id = WEBHOOK_CONFIG[url]
+                content = f"<@&{role_id}>"
                 
-                await asyncio.gather(*tasks)
-                logging.info(f"Sent to {len(tasks)} webhooks")
-                
-        except discord.HTTPException as e:
+                webhook = Webhook.from_url(url, session=self.session)
+                tasks.append(webhook.send(content=content, embed=embed))
+
+            await asyncio.gather(*tasks)
+            
+        except discord.HTTPException as e:  # Handle FIRST
             if e.status == 429:
                 self.rate_limited = True
-                retry_after = e.retry_after
-                logging.warning(f"Rate limited. Retrying in {retry_after}s")
-                await asyncio.sleep(retry_after)
+                await asyncio.sleep(e.retry_after + 1)
                 self.rate_limited = False
         except Exception as e:
             logging.error(f"Webhook error: {str(e)}")
@@ -253,28 +257,22 @@ def get_slate_token():
         return None
 
 async def main():
-    monitor = BlinkMonitor()
-
-    asins = [
-            "B07L4QGYLV"
-    ]
-
-    while True:
-        try:
-            results = await asyncio.to_thread(check_stock, asins)
-            if results:
-                for product in results:
-                    if product.get('in_stock'):
-                        await monitor.send_notification(product)
-            
-            await asyncio.sleep(random.uniform(4, 8))
-            
-        except KeyboardInterrupt:
-            await monitor.session.close()
-            break
-        except Exception as e:
-            logging.error(f"Main loop error: {str(e)}")
-            await asyncio.sleep(5)
+    async with BlinkMonitor() as monitor:
+        while True:
+            try:
+                results = await asyncio.to_thread(check_stock, asins)
+                if results:
+                    for product in results:
+                        if product.get('in_stock'):
+                            await monitor.send_notification(product)
+                            
+                await asyncio.sleep(random.uniform(4, 8))
+                
+            except KeyboardInterrupt:
+                break
+            except Exception as e:
+                logging.error(f"Main error: {str(e)}")
+                await asyncio.sleep(5)
 
 
 if __name__ == "__main__":
