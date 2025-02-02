@@ -242,7 +242,7 @@ def check_stock(asins):
             if product.get('in_stock'):
                 logging.info(f"{asin} in-stock")
             else:
-                logging.info(f"{asin} OOS")
+                logging.info(f"{asin} out of stock")
         
         return parsed_data
     
