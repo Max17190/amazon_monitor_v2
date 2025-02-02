@@ -236,15 +236,14 @@ def check_stock(asins):
         )
         response.raise_for_status()
         parsed_data = parse_json(response.json())
-        logging.info(f"Stock check result:\n{json.dumps(parsed_data, indent=2)}")
+        if parsed_data:
+            for product in parsed_data:
+                status = "in stock" if product.get('in_stock') else "out of stock"
+                logging.info(f"{product.get('asin')} {status}")
+        else:
+            logging.warning("No data received from Amazon API")
+
         return parsed_data
-    except requests.exceptions.RequestException as e:
-        logging.error(f"Request failed: {str(e)}")
-    except json.JSONDecodeError:
-        logging.error("Failed to parse JSON response")
-    except Exception as e:
-        logging.error(f"Unexpected error during stock check: {str(e)}")
-    return None
 
 def get_slate_token():
     """Retrieve slate token from Amazon page"""
