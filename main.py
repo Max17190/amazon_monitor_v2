@@ -295,6 +295,7 @@ async def main():
                         if product.get('in_stock'):
                             await monitor.send_notification(product)
                 
+                # Delay between batches
                 await asyncio.sleep(random.uniform(1,2))
                             
                 results_5090 = await asyncio.to_thread(check_stock, RTX5090)
@@ -303,7 +304,8 @@ async def main():
                         if product.get('in_stock'):
                             await monitor.send_notification(product)
 
-                await asyncio.sleep(random.uniform(4, 8))
+                # Monitor Cycle Delay
+                await asyncio.sleep(random.uniform(1, 2))
             
                 
             except KeyboardInterrupt:
