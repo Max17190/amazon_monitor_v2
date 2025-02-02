@@ -20,8 +20,6 @@ logging.basicConfig(
 
 # Load environment variables
 load_dotenv('/Users/maxloffgren/Documents/Private Endpoint Amazon/API.env')
-DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
-DISCORD_CHANNEL_ID = int(os.getenv('DISCORD_CHANNEL_ID'))
 
 proxy_host = os.getenv('PROXY_HOST')
 proxy_port = os.getenv('PROXY_PORT')
