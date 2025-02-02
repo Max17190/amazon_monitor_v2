@@ -21,12 +21,29 @@ logging.basicConfig(
 # Load environment variables for testing
 # load_dotenv('/Users/maxloffgren/Documents/Private Endpoint Amazon/API.env')
 
-proxy_host = os.getenv('PROXY_HOST')
-proxy_port = os.getenv('PROXY_PORT')
-proxy_user = os.getenv('PROXY_USER')
-proxy_pass = os.getenv('PROXY_PASS')
-    
+PROXY_CONFIG = {
+    "host": "p.webshare.io",
+    "port": "80", 
+    "user": "xojhhpgv-rotate",
+    "pass": "8s2ox57rdqgr"
+}
+
+proxy = f"http://{PROXY_CONFIG['user']}:{PROXY_CONFIG['pass']}@{PROXY_CONFIG['host']}:{PROXY_CONFIG['port']}"
+proxies = {
+    "http": proxy,
+    "https": proxy
+}
+
+proxy_host = os.getenv('PROXY_HOST') 
+proxy_port = os.getenv('PROXY_PORT')  
+proxy_user = os.getenv('PROXY_USER') 
+proxy_pass = os.getenv('PROXY_PASS')  
+
 proxy = f"http://{proxy_user}:{proxy_pass}@{proxy_host}:{proxy_port}"
+proxies = {
+    "http": proxy,
+    "https": proxy
+}
 
 def get_random_user_agent():
     user_agents = [
@@ -185,10 +202,7 @@ def check_stock(asins):
     if len(asins) > 25:
         logging.warning("Maximum 25 ASINs allowed per request. Truncating list.")
         asins = asins[:25]
-    
-    proxies = {
-        "https": proxy
-    }
+
 
     session_id = f"{random.randint(100, 999)}-{random.randint(10**6, 10**7-1)}-{random.randint(10**6, 10**7-1)}"
     
