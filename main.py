@@ -314,7 +314,7 @@ async def main():
                 # Process RTX5090 with separate monitor
                 results_5080 = await asyncio.to_thread(check_stock, RTX5080)
                 if results_5080:
-                    for product in results_5090:
+                    for product in results_5080:
                         if product.get('in_stock'):
                             await monitor_5080.send_notification(product)
                             # Notification Rate Limit
