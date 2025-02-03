@@ -278,7 +278,7 @@ def get_slate_token():
         return None
 
 """
-    RTX5080 = ["B089DR29T6"]
+    RTX5080 = ["B0CL9C4PYT"]
 
     RTX5090 = ["B07L4QGYLV"]
 
@@ -300,7 +300,7 @@ def get_slate_token():
 
 async def main():
     
-    RTX5080 = ["B089DR29T6"]
+    RTX5080 = ["B07L4QGYLV"]
 
     RTX5090 = [
         "B0DT7L98J1", "B0DTJFSSZG", "B0DTJF8YT4", "B0DS2WQZ2M",
