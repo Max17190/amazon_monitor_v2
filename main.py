@@ -300,13 +300,13 @@ def get_slate_token():
 
 async def main():
 
-    RTX5090 = ["B07L4QGYLV"]
+    RTX5080 = ["B07L4QGYLV"]
 
     async with BlinkMonitor() as monitor_5090:
         while True:
             try:
                 # Process RTX5090 with separate monitor
-                results_5090 = await asyncio.to_thread(check_stock, RTX5090)
+                results_5090 = await asyncio.to_thread(check_stock, RTX5080)
                 if results_5090:
                     for product in results_5090:
                         if product.get('in_stock'):
