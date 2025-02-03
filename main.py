@@ -304,7 +304,7 @@ async def main():
                             await monitor.send_notification(product)
                 
                 # Delay between batches
-                await asyncio.sleep(random.uniform(1,2))
+                await asyncio.sleep(1)
                             
                 results_5090 = await asyncio.to_thread(check_stock, RTX5090)
                 if results_5090:
@@ -313,7 +313,7 @@ async def main():
                             await monitor.send_notification(product)
 
                 # Monitor Cycle Delay
-                await asyncio.sleep(random.uniform(2, 3))
+                await asyncio.sleep(random.uniform(1,2))
             
                 
             except KeyboardInterrupt:
