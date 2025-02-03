@@ -319,7 +319,7 @@ async def main():
                             await monitor.send_notification(product)
                 
                 # Delay between batches
-                await asyncio.sleep(1)
+                await asyncio.sleep(2)
                             
                 results_5090 = await asyncio.to_thread(check_stock, RTX5090)
                 if results_5090:
