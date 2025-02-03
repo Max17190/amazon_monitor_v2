@@ -321,7 +321,7 @@ async def main():
                             await asyncio.sleep(1)
 
                 # Full cycle cooldown
-                await asyncio.sleep(random.uniform(5, 7))
+                await asyncio.sleep(1)
 
             except KeyboardInterrupt:
                 break
