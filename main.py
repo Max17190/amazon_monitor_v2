@@ -299,21 +299,21 @@ def get_slate_token():
 """
 
 async def main():
-    RTX5080 = ["B0CL9C4PYT"]
 
-    async with BlinkMonitor() as monitor_5080:
+    RTX5090 = ["B07L4QGYLV"]
+
+    async with BlinkMonitor() as monitor_5090:
         while True:
             try:
-                # Process RTX5080 with isolated monitor
-                results_5080 = await asyncio.to_thread(check_stock, RTX5080)
-                if results_5080:
-                    for product in results_5080:
+                # Process RTX5090 with separate monitor
+                results_5090 = await asyncio.to_thread(check_stock, RTX5090)
+                if results_5090:
+                    for product in results_5090:
                         if product.get('in_stock'):
-                            logging.info(f"RTX5080 IN STOCK: {product['asin']}")
-                            await monitor_5080.send_notification(product)
+                            logging.info(f"GPU IN STOCK: {product['asin']}")
+                            await monitor_5090.send_notification(product)
                             # Notification Rate Limit
                             await asyncio.sleep(1)
-
 
                 # Full cycle cooldown
                 await asyncio.sleep(random.uniform(5, 7))
