@@ -278,6 +278,13 @@ def get_slate_token():
         return None
 
 """
+    RTX5080 = ["B089DR29T6"]
+
+    RTX5090 = ["B07L4QGYLV"]
+"""
+
+async def main():
+    
     RTX5080 = [
             "B0DTPG3B1N", "B0DSWP51N3", "B0DSXKZ2T9", "B0DTJFZ4YS", "B0DSX9Y24P",
             "B0DSXGNFJL", "B0DSXNXTSS", "B0DQSD7YQC", "B0DT7JVPVH", "B0DSWQNGYF",
@@ -292,13 +299,6 @@ def get_slate_token():
         "B0DT7GMXHB", "B0DT7KGND2", "B0DT7K9VV3", "B0DS2Z8854",
         "B0DS2X3T6P", "B0DS2X13PH"
     ]
-"""
-
-async def main():
-    
-    RTX5080 = ["B089DR29T6"]
-
-    RTX5090 = ["B07L4QGYLV"]
 
     async with BlinkMonitor() as monitor:
         while True:
