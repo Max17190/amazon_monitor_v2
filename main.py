@@ -236,13 +236,6 @@ def check_stock(asins):
         )
         response.raise_for_status()
         parsed_data = parse_json(response.json())
-
-        for product in parsed_data:
-            asin = product.get('asin', 'UNKNOWN_ASIN')
-            if product.get('in_stock'):
-                logging.info(f"{asin} in-stock")
-            else:
-                logging.info(f"{asin} out of stock")
         
         return parsed_data
     
