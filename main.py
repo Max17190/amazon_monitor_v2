@@ -319,7 +319,7 @@ async def main():
                             await monitor_5080.send_notification(product)
 
                 # Full cycle cooldown
-                # await asyncio.sleep(1)
+                await asyncio.sleep(0.2)
 
             except KeyboardInterrupt:
                 break
