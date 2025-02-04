@@ -314,24 +314,32 @@ async def main():
                 results = await asyncio.to_thread(check_stock, RTX5080)
                 
                 if results:
-                    # Create verification mapping
-                    response_asins = {p['asin']: p for p in results}
+                    # Create verification tracking
+                    received_asins = {p['asin'] for p in results}
+                    processed_asins = set()
                     
-                    for asin in RTX5080:
-                        product = response_asins.get(asin)
-                        status = "MISSING" if not product else "PRESENT"
-                        stock_status = product['in_stock'] if product else False
+                    for product in results:
+                        asin = product.get('asin', 'UNKNOWN_ASIN')
+                        processed_asins.add(asin)
                         
-                        logging.info(
-                            f"ASIN {asin}: {status} | "
-                            f"Stock: {'IN_STOCK' if stock_status else 'OUT_OF_STOCK'}"
-                        )
-                        
-                        if stock_status:
+                        # Validate required fields
+                        if not all(key in product for key in ['asin', 'in_stock']):
+                            logging.error(f"Invalid response for {asin}")
+                            continue
+                            
+                        if product['in_stock']:
+                            logging.info(f"ASIN {asin}: IN_STOCK | Verified: {datetime.now().isoformat()}")
                             await monitor.send_notification(product)
-                            logging.info(f"Notification queued for {asin}")
+                        else:
+                            logging.info(f"ASIN {asin}: OUT_OF_STOCK | Checked: {datetime.now().isoformat()}")
+                    
+                    # Identify missing ASINs
+                    missing_asins = set(RTX5080) - processed_asins
+                    for asin in missing_asins:
+                        logging.warning(f"ASIN {asin}: MISSING_FROM_RESPONSE | LastCheck: {datetime.now().isoformat()}")
                 
-                await asyncio.sleep(random.uniform(0.5, 1.5))
+                # Maintain existing delay
+                await asyncio.sleep(0.2)
                 
             except Exception as e:
                 logging.error(f"Main loop error: {str(e)}")
