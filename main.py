@@ -308,22 +308,31 @@ async def main():
             "B0DSXH2P3L", "B0DSXJ5QF4", "B0DT7HVT16", "B0DS2R7N4F", "B0DSWR8WMB"
     ]
 
-    async with BlinkMonitor() as monitor_5080:
+    async with BlinkMonitor() as monitor:
         while True:
             try:
-                # Process RTX 5080 ASINs
                 results = await asyncio.to_thread(check_stock, RTX5080)
+                
                 if results:
-                    for product in results:
-                        status = "In Stock" if product['in_stock'] else "Out of Stock"
-                        logging.info(f'ASIN {product['asin']}: {status} JSON verify success')
-                        await monitor_5080.send_notification(product)
-
-                # Full cycle cooldown
-                await asyncio.sleep(0.2)
-
-            except KeyboardInterrupt:
-                break
+                    # Create verification mapping
+                    response_asins = {p['asin']: p for p in results}
+                    
+                    for asin in RTX5080:
+                        product = response_asins.get(asin)
+                        status = "MISSING" if not product else "PRESENT"
+                        stock_status = product['in_stock'] if product else False
+                        
+                        logging.info(
+                            f"ASIN {asin}: {status} | "
+                            f"Stock: {'IN_STOCK' if stock_status else 'OUT_OF_STOCK'}"
+                        )
+                        
+                        if stock_status:
+                            await monitor.send_notification(product)
+                            logging.info(f"Notification queued for {asin}")
+                
+                await asyncio.sleep(random.uniform(0.5, 1.5))
+                
             except Exception as e:
                 logging.error(f"Main loop error: {str(e)}")
                 await asyncio.sleep(10)
