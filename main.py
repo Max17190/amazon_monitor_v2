@@ -301,7 +301,7 @@ def get_slate_token():
 async def main():
 
     RTX5080 = [
-            "B0CQMRKRV5", "B07L4QGYLV"
+            "B0DQSMMCSH", "B0CQMRKRV5", "B07L4QGYLV"
     ]
 
     async with BlinkMonitor() as monitor_5080:
