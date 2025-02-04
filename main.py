@@ -312,11 +312,12 @@ async def main():
         while True:
             try:
                 # Process RTX 5080 ASINs
-                results_5080 = await asyncio.to_thread(check_stock, RTX5080)
-                if results_5080:
-                    for product in results_5080:
-                        if product.get('in_stock'):
-                            await monitor_5080.send_notification(product)
+                results = await asyncio.to_thread(check_stock, RTX5080)
+                if results:
+                    for product in results:
+                        status = "In Stock" if product['in_stock'] else "Out of Stock"
+                        logging.info(f'ASIN {product['asin']}: {status} JSON verify success')
+                        await monitor_5080.send_notification(product)
 
                 # Full cycle cooldown
                 await asyncio.sleep(0.2)
