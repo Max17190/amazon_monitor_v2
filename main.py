@@ -339,7 +339,7 @@ async def main():
                         logging.warning(f"ASIN {asin}: MISSING_FROM_RESPONSE | LastCheck: {datetime.now().isoformat()}")
                 
                 # Maintain existing delay
-                await asyncio.sleep(0.2)
+                await asyncio.sleep(5)
                 
             except Exception as e:
                 logging.error(f"Main loop error: {str(e)}")
