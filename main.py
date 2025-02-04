@@ -150,6 +150,8 @@ def parse_json(response_data):
                 'offers': []
             }
 
+            item['in_stock'] = product.get('canAddToCart', False)
+
             # Title parsing
             title = product.get('title')
             if isinstance(title, dict):
@@ -321,6 +323,7 @@ async def main():
                     
                     # Identify missing ASINs
                     missing_asins = set(RTX5080) - processed_asins
+                    
                     for asin in missing_asins:
                         logging.error(f"ASIN {asin}: MISSING_FROM_RESPONSE")
                     
