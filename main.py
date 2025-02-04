@@ -308,39 +308,37 @@ async def main():
             "B0DSXH2P3L", "B0DSXJ5QF4", "B0DT7HVT16", "B0DS2R7N4F", "B0DSWR8WMB"
     ]
 
-    async with BlinkMonitor() as monitor:
+    async with BlinkMonitor() as monitor_5080:
         while True:
             try:
                 results = await asyncio.to_thread(check_stock, RTX5080)
                 
                 if results:
-                    # Create verification tracking
-                    received_asins = {p['asin'] for p in results}
                     processed_asins = set()
                     
+                    # Process valid responses
                     for product in results:
                         asin = product.get('asin', 'UNKNOWN_ASIN')
                         processed_asins.add(asin)
+                        status = "IN_STOCK" if product['in_stock'] else "OUT_OF_STOCK"
+                        logging.info(f"ASIN {asin}: {status}")
                         
-                        # Validate required fields
-                        if not all(key in product for key in ['asin', 'in_stock']):
-                            logging.error(f"Invalid response for {asin}")
-                            continue
-                            
                         if product['in_stock']:
-                            logging.info(f"ASIN {asin}: IN_STOCK | Verified: {datetime.now().isoformat()}")
-                            await monitor.send_notification(product)
-                        else:
-                            logging.info(f"ASIN {asin}: OUT_OF_STOCK | Checked: {datetime.now().isoformat()}")
+                            await monitor_5080.send_notification(product)
                     
                     # Identify missing ASINs
                     missing_asins = set(RTX5080) - processed_asins
                     for asin in missing_asins:
-                        logging.warning(f"ASIN {asin}: MISSING_FROM_RESPONSE | LastCheck: {datetime.now().isoformat()}")
+                        logging.error(f"ASIN {asin}: MISSING_FROM_RESPONSE")
+                    
+                    # Batch summary
+                    valid_count = len(processed_asins)
+                    logging.info(f"Batch complete: {valid_count}/{len(RTX5080)} ASINs verified")
                 
-                # Maintain existing delay
-                await asyncio.sleep(5)
+                await asyncio.sleep(0.2)
                 
+            except KeyboardInterrupt:
+                break
             except Exception as e:
                 logging.error(f"Main loop error: {str(e)}")
                 await asyncio.sleep(10)
