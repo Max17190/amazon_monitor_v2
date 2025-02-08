@@ -211,7 +211,7 @@ async def check_stock(session, asins):
             "sessionId": session_id,
             "currency": "USD",
             "amazonApiAjaxEndpoint": "data.amazon.com",
-            "slateToken": get_slate_token(),
+            "slateToken": await get_slate_token(),
         },
         "content": {"includeOutOfStock": False},
         "includeOutOfStock": True,
@@ -249,7 +249,7 @@ async def check_stock(session, asins):
         logging.error(f"Unexpected error during stock check: {str(e)}")
     return None
 
-async def get_slate_token():
+async def get_slate_token(session):
     """Retrieve slate token from Amazon page"""
     proxies = {
         "http": proxy,
