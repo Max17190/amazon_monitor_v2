@@ -194,7 +194,7 @@ def parse_json(response_data):
         logging.error(f"Parsing error: {str(e)}")
         return []
 
-def check_stock(asins):
+async def check_stock(asins):
     """Check product stock status for up to 25 ASINs"""
     if len(asins) > 25:
         logging.warning("Maximum 25 ASINs allowed per request. Truncating list.")
@@ -229,19 +229,19 @@ def check_stock(asins):
     }
 
     try:
-        response = requests.post(
+        async with session.post(
             "https://www.amazon.com/juvec",
             headers=headers,
             json=data,
-            proxies=proxies,
+            proxy=proxy,
             timeout=5
-        )
-        response.raise_for_status()
-        parsed_data = parse_json(response.json())
-        
-        return parsed_data
+        ) as response:
+            response.raise_for_status()
+            response_data = await response.json()
+            parsed_data = parse_json(response_data)
+            return parsed_data
     
-    except requests.exceptions.RequestException as e:
+    except aiohttp.ClientError as e:
         logging.error(f"Request failed: {str(e)}")
     except json.JSONDecodeError:
         logging.error("Failed to parse JSON response")
@@ -249,7 +249,7 @@ def check_stock(asins):
         logging.error(f"Unexpected error during stock check: {str(e)}")
     return None
 
-def get_slate_token():
+async def get_slate_token():
     """Retrieve slate token from Amazon page"""
     proxies = {
         "http": proxy,
@@ -257,17 +257,16 @@ def get_slate_token():
     }
 
     try:
-        response = requests.get(
+        async with session.get(
             "https://www.amazon.com/stores/page/41041283-2CBB-46FE-87F5-F6E50C884DA8",
             headers={"User-Agent": get_random_user_agent()},
-            proxies={"https": proxy},
+            proxy=proxy,
             timeout=5
-        )
-        response.raise_for_status()
-        
-        match = re.search(r'"slateToken"\s*:\s*"([^"]+)"', response.text)
-        return match.group(1) if match else None
-        
+        ) as response:
+            response.raise_for_status()
+            text = await response.text()
+            match = re.search(r'"slateToken"\s*:\s*"([^"]+)"', text)
+            return match.group(1) if match else None
     except Exception as e:
         logging.error(f"Failed to get slate token: {str(e)}")
         return None
@@ -311,40 +310,32 @@ async def main():
         "B0DSWP51N3", "B0DSXKZ2T9", "B0DTJFZ4YS", "B0DSX9Y24P", "B0DSXGNFJL",
         "B0DSXNXTSS", "B0DQSD7YQC", "B0DT7JVPVH", "B0DSWQNGYF", "B0DS2R7N4F"
     ]
-
-    async with BlinkMonitor() as monitor_5080:
-        while True:
-            try:
-                results = await asyncio.to_thread(check_stock, NVIDIA)
-                
-                if results:
-                    processed_asins = set()
-                    
-                    # Process valid responses
-                    for product in results:
-                        asin = product.get('asin', 'UNKNOWN_ASIN')
-                        processed_asins.add(asin)
-                        status = "IN_STOCK" if product['in_stock'] else "OUT_OF_STOCK"
-                        logging.info(f"ASIN {asin}: {status}")
+    async with aiohttp.ClientSession() as session:
+        async with BlinkMonitor() as monitor_5080:
+            while True:
+                try:
+                    results = await check_stock(session, NVIDIA)
+                    if results:
+                        processed_asins = set()
+                        for product in results:
+                            asin = product.get('asin', 'UNKNOWN_ASIN')
+                            processed_asins.add(asin)
+                            status = "IN_STOCK" if product['in_stock'] else "OUT_OF_STOCK"
+                            logging.info(f"ASIN {asin}: {status}")
+                            if product['in_stock']:
+                                await monitor_5080.send_notification(product)
                         
-                        if product['in_stock']:
-                            await monitor_5080.send_notification(product)
-                    
-                    # Identify missing ASINs
-                    missing_asins = set(NVIDIA) - processed_asins
-                    
-                    for asin in missing_asins:
-                        logging.error(f"ASIN {asin}: MISSING_FROM_RESPONSE")
-                    
-                    # Batch summary
-                    valid_count = len(processed_asins)
-                    logging.info(f"Batch complete: {valid_count}/{len(NVIDIA)} ASINs verified")
-                
-            except KeyboardInterrupt:
-                break
-            except Exception as e:
-                logging.error(f"Main loop error: {str(e)}")
-                await asyncio.sleep(2)
+                        missing_asins = set(NVIDIA) - processed_asins
+                        for asin in missing_asins:
+                            logging.error(f"ASIN {asin}: MISSING_FROM_RESPONSE")
+                        
+                        valid_count = len(processed_asins)
+                        logging.info(f"Batch complete: {valid_count}/{len(NVIDIA)} ASINs verified")
+                except KeyboardInterrupt:
+                    break
+                except Exception as e:
+                    logging.error(f"Main loop error: {str(e)}")
+                await asyncio.sleep(0.1)
 
 
 if __name__ == "__main__":
