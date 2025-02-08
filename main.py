@@ -295,18 +295,18 @@ def get_slate_token():
 
 async def main():
 
-    RTX5080 = [
-            "B0DTPG3B1N", "B0DSWP51N3", "B0DSXKZ2T9", "B0DTJFZ4YS", "B0DSX9Y24P",
-            "B0DSXGNFJL", "B0DSXNXTSS", "B0DQSD7YQC", "B0DT7JVPVH", "B0DSWQNGYF",
-            "B0DT7FT1P5", "B0DTJDR3V9", "B0DT7H5JYL", "B0DQSLHSP2", "B0DS2R6948",
-            "B0DTZ441G7", "B0DTZ48TCY", "B0DSWRLSD4", "B0DQSMMCSH", "B0DT7HKND2",
-            "B0DSXH2P3L", "B0DSXJ5QF4", "B0DT7HVT16", "B0DS2R7N4F", "B0DSWR8WMB"
+    NVIDIA = [
+        "B0DT7L98J1", "B0DTJFSSZG", "B0DTJF8YT4", "B0DS2WQZ2M", "B0DT7JS6BG",
+        "B0DT7GHQMD", "B0DT7L992Z", "B0DT7GBNWQ", "B0DT7GMXHB", "B0DT7KGND2",
+        "B0DS2Z8854", "B0DS2X13PH", "B0DSWP51N3", "B0DTJDR3V9", "B0DS2R6948",
+        "B0DSWP51N3", "B0DSXKZ2T9", "B0DTJFZ4YS", "B0DSX9Y24P", "B0DSXGNFJL",
+        "B0DSXNXTSS", "B0DQSD7YQC", "B0DT7JVPVH", "B0DSWQNGYF", "B0DS2R7N4F"
     ]
 
     async with BlinkMonitor() as monitor_5080:
         while True:
             try:
-                results = await asyncio.to_thread(check_stock, RTX5080)
+                results = await asyncio.to_thread(check_stock, NVIDIA)
                 
                 if results:
                     processed_asins = set()
@@ -322,20 +322,20 @@ async def main():
                             await monitor_5080.send_notification(product)
                     
                     # Identify missing ASINs
-                    missing_asins = set(RTX5080) - processed_asins
+                    missing_asins = set(NVIDIA) - processed_asins
                     
                     for asin in missing_asins:
                         logging.error(f"ASIN {asin}: MISSING_FROM_RESPONSE")
                     
                     # Batch summary
                     valid_count = len(processed_asins)
-                    logging.info(f"Batch complete: {valid_count}/{len(RTX5080)} ASINs verified")
+                    logging.info(f"Batch complete: {valid_count}/{len(NVIDIA)} ASINs verified")
                 
             except KeyboardInterrupt:
                 break
             except Exception as e:
                 logging.error(f"Main loop error: {str(e)}")
-                await asyncio.sleep(10)
+                await asyncio.sleep(2)
 
 
 if __name__ == "__main__":
