@@ -211,7 +211,7 @@ async def check_stock(session, asins):
             "sessionId": session_id,
             "currency": "USD",
             "amazonApiAjaxEndpoint": "data.amazon.com",
-            "slateToken": await get_slate_token(),
+            "slateToken": await get_slate_token(session),
         },
         "content": {"includeOutOfStock": False},
         "includeOutOfStock": True,
