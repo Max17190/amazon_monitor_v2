@@ -331,8 +331,6 @@ async def main():
                     valid_count = len(processed_asins)
                     logging.info(f"Batch complete: {valid_count}/{len(RTX5080)} ASINs verified")
                 
-                await asyncio.sleep(0.1)
-                
             except KeyboardInterrupt:
                 break
             except Exception as e:
