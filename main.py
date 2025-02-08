@@ -194,7 +194,7 @@ def parse_json(response_data):
         logging.error(f"Parsing error: {str(e)}")
         return []
 
-async def check_stock(asins):
+async def check_stock(session, asins):
     """Check product stock status for up to 25 ASINs"""
     if len(asins) > 25:
         logging.warning("Maximum 25 ASINs allowed per request. Truncating list.")
