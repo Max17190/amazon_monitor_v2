@@ -135,61 +135,33 @@ class BlinkMonitor:
         await self.client.start(DISCORD_TOKEN)
 
 def parse_json(response_data):
-    """Properly parse Amazon API response"""
+    """Parse Amazon API response and extract key product data"""
     parsed_list = []
     try:
-        products = response_data.get('products', [])
+        # Handle different response structures
+        products = response_data if isinstance(response_data, list) else response_data.get('products', [])
         
         for product in products:
             item = {
-                'title': 'N/A',
-                'asin': 'N/A',
-                'images': [],
-                'link': 'N/A',
-                'in_stock': False,
-                'offers': []
+                'asin': product.get('asin', 'N/A'),
+                'title': product.get('title', 'N/A'),
+                'in_stock': product.get('canAddToCart', False),  # Direct check
+                'link': f"https://www.amazon.com/dp/{product.get('asin', '')}",
+                'images': [
+                    img.get('hiRes', {}).get('url') 
+                    for img in product.get('productImages', {}).get('images', [])
+                    if img and img.get('hiRes', {}).get('url')
+                ]
             }
-
-            item['in_stock'] = product.get('canAddToCart', False)
-
-            # Title parsing
-            title = product.get('title')
-            if isinstance(title, dict):
-                item['title'] = title.get('displayString', 'N/A')
-            elif isinstance(title, str):
-                item['title'] = title
-
-            # ASIN and link
-            item['asin'] = product.get('asin', 'N/A')
-            item['link'] = f"https://www.amazon.com{product.get('detailPageLinkURL', '')}"
-
-            # Image handling
-            images = product.get('productImages', {}).get('images', [])
-            item['images'] = [
-                img['hiRes']['url']
-                for img in images
-                if isinstance(img, dict) and img.get('hiRes', {}).get('url')
-            ]
-
-            # Stock and price data
-            buying_options = product.get('buyingOptions', [])
-            item['in_stock'] = any(
-                isinstance(opt, dict) and 
-                opt.get('availability', {}).get('type') == 'IN_STOCK'
-                for opt in buying_options
-            )
             
-            if buying_options:
-                price_info = buying_options[0].get('price', {})
-                if isinstance(price_info, dict):
-                    item['price'] = price_info.get('displayString', 'MSRP')
-                elif isinstance(price_info, str):
-                    item['price'] = price_info
-
+            # Handle title formatting (some come as dicts)
+            if isinstance(item['title'], dict):
+                item['title'] = item['title'].get('displayString', 'N/A')
+                
             parsed_list.append(item)
             
         return parsed_list
-    
+        
     except Exception as e:
         logging.error(f"Parsing error: {str(e)}")
         return []
