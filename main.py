@@ -130,10 +130,6 @@ class BlinkMonitor:
         embed.set_footer(text=f"Blink FNF | {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         return embed
 
-    async def start_client(self):
-        """Start the Discord client"""
-        await self.client.start(DISCORD_TOKEN)
-
 def parse_json(response_data):
     """Parse Amazon API response and extract key product data"""
     parsed_list = []
