@@ -18,27 +18,22 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
-# Load environment variables for testing
-# load_dotenv('/Users/maxloffgren/Documents/Private Endpoint Amazon/API.env')
+# Local environment variables
+load_dotenv('endpoint.env')
 
 PROXY_CONFIG = {
-    "host": "p.webshare.io",
-    "port": "80", 
-    "user": "xojhhpgv-rotate",
-    "pass": "8s2ox57rdqgr"
+    "host": os.getenv('PROXY_HOST'),
+    "port": os.getenv('PROXY_PORT'),
+    "user": os.getenv('PROXY_USER'),
+    "pass": os.getenv('PROXY_PASS')
 }
+
 
 proxy = f"http://{PROXY_CONFIG['user']}:{PROXY_CONFIG['pass']}@{PROXY_CONFIG['host']}:{PROXY_CONFIG['port']}"
 proxies = {
     "http": proxy,
     "https": proxy
 }
-
-proxy_host = os.getenv('PROXY_HOST') 
-proxy_port = os.getenv('PROXY_PORT')  
-proxy_user = os.getenv('PROXY_USER') 
-proxy_pass = os.getenv('PROXY_PASS')  
-
 
 def get_random_user_agent():
     user_agents = [
@@ -90,7 +85,7 @@ class BlinkMonitor:
 
             await asyncio.gather(*tasks)
             
-        except discord.HTTPException as e:  # Handle FIRST
+        except discord.HTTPException as e:
             if e.status == 429:
                 self.rate_limited = True
                 await asyncio.sleep(e.retry_after + 1)
@@ -173,8 +168,8 @@ async def check_stock(session, asins):
     
     data = {
         "requestContext": {
-            "obfuscatedMarketplaceId": "ATVPDKIKX0DER",
-            "obfuscatedMerchantId": "ATVPDKIKX0DER",
+            "obfuscatedMarketplaceId": os.getenv("MARKETPLACE_ID"),
+            "obfuscatedMerchantId": os.getenv("MERCHANT_ID"),
             "language": "en-US",
             "sessionId": session_id,
             "currency": "USD",
@@ -198,7 +193,7 @@ async def check_stock(session, asins):
 
     try:
         async with session.post(
-            "https://www.amazon.com/juvec",
+            os.getenv('AMAZON_ENDPOINT'),
             headers=headers,
             json=data,
             proxy=proxy,
@@ -226,7 +221,7 @@ async def get_slate_token(session):
 
     try:
         async with session.get(
-            "https://www.amazon.com/stores/page/41041283-2CBB-46FE-87F5-F6E50C884DA8",
+            os.getenv('AMAZON_URL'),
             headers={"User-Agent": get_random_user_agent()},
             proxy=proxy,
             timeout=5
