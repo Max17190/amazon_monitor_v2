@@ -1,9 +1,29 @@
-WEBHOOK_CONFIG = {
-    # Blink FNF
-    "https://discord.com/api/webhooks/1335435206219268211/m5LFrhU6GcM-Eql_TpqH4xNB8vL561aV08ERN2OGjdfHEAYgpNw6ZfQlX65z9HsSGcrH": "1335458633911369789",
-    # Blink Monitors
-    "https://discord.com/api/webhooks/1335461339577057361/DZHvYKLWlc4eO618gLp2R_0ctfdypXsMbPSUS9vpDnq2VK6nTZNWJ-xzd5wEpZSBLsrP": "1335462521468882957",
-    # Matt FNF
-    "https://discord.com/api/webhooks/1337653236085030973/BM_ti5K7wMFvxA7J9sOhp6F4sWJLCVOkOicPQ2BWBaxcXgDq_Q4klKd7HJq2Zzof-4n7": "1337653560963235963"
-}
+import os
+from dotenv import load_dotenv
+
+# Load directly from the API.env file
+load_dotenv('/Users/maxloffgren/Documents/Private Endpoint Amazon/API.env')
+
+# Get webhook data from environment variables
+WEBHOOK_CONFIG = {}
+
+# Direct Mapping: Optimized for time complexity
+webhook_mappings = [
+    ("BLINK_FNF_WEBHOOK_URL", "BLINK_FNF_CHANNEL_ID"),
+    ("BLINK_MONITORS_WEBHOOK_URL", "BLINK_MONITORS_CHANNEL_ID"),
+    ("MATT_FNF_WEBHOOK_URL", "MATT_FNF_CHANNEL_ID")
+]
+
+# Webhook Configuration
+for webhook_key, channel_key in webhook_mappings:
+    webhook_url = os.getenv(webhook_key)
+    channel_id = os.getenv(channel_key)
+    
+    if webhook_url and channel_id:
+        WEBHOOK_CONFIG[webhook_url] = channel_id
+    else:
+        print(f"Warning: Missing environment variable for {webhook_key} or {channel_key}")
+
+# Create list of webhook URLs
 WEBHOOK_URLS = list(WEBHOOK_CONFIG.keys())
+# print(WEBHOOK_URLS)
