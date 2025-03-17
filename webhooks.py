@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 
 # Load directly from the API.env file
-load_dotenv('/Users/maxloffgren/Documents/Private Endpoint Amazon/API.env')
+load_dotenv('endpoint.env')
 
 # Get webhook data from environment variables
 WEBHOOK_CONFIG = {}
